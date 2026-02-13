@@ -1,0 +1,35 @@
+import { pgTable, text, doublePrecision } from "drizzle-orm/pg-core";
+
+export const habitability = pgTable("habitability", {
+  plName: text("pl_name").notNull(),
+  plRade: doublePrecision("pl_rade"),
+  plBmasse: doublePrecision("pl_bmasse"),
+  plEqt: doublePrecision("pl_eqt"),
+  plOrbsmax: doublePrecision("pl_orbsmax"),
+  stLum: doublePrecision("st_lum"),
+  stTeff: doublePrecision("st_teff"),
+  stMass: doublePrecision("st_mass"),
+  stRad: doublePrecision("st_rad"),
+  plOrbeccen: doublePrecision("pl_orbeccen"),
+  plOrbincl: doublePrecision("pl_orbincl"),
+  radiusNorm: doublePrecision("radius_norm"),
+  massNorm: doublePrecision("mass_norm"),
+  tempNorm: doublePrecision("temp_norm"),
+  stLumLinear: doublePrecision("st_lum_linear"),
+  flux: doublePrecision("flux"),
+  escapeVelocityRatio: doublePrecision("escape_velocity_ratio"),
+  tempScore: doublePrecision("temp_score"),
+  radiusScore: doublePrecision("radius_score"),
+  massScore: doublePrecision("mass_score"),
+  fluxScore: doublePrecision("flux_score"),
+  hzScore: doublePrecision("hz_score"),
+  hzInner: doublePrecision("HZ_inner"),
+  hzOuter: doublePrecision("HZ_outer"),
+  atmosphereScore: doublePrecision("atmosphere_score"),
+  hiRaw: doublePrecision("HI_raw"),
+  hi: doublePrecision("HI"),
+  tri: doublePrecision("TRI"),
+  riskLevel: text("risk_level"),
+});
+
+export type Planet = typeof habitability.$inferSelect;
