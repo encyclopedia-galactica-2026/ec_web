@@ -4,6 +4,7 @@ import { useMemo, useRef, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import type { Mesh, ShaderMaterial } from "three";
+import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import { ExoplanetMesh } from "./exoplanet-sphere";
 import type { Planet } from "@/lib/db/schema";
 
@@ -175,10 +176,12 @@ function CameraAnimator({
   targetPlanet,
   onMidpoint,
   onTravelComplete,
+  controlsRef,
 }: {
   targetPlanet?: Planet | null;
   onMidpoint?: () => void;
   onTravelComplete?: () => void;
+  controlsRef: React.RefObject<OrbitControlsImpl | null>;
 }) {
   const { camera } = useThree();
   const phase = useRef<"idle" | "departing" | "arriving">("idle");
@@ -188,6 +191,9 @@ function CameraAnimator({
 
   useFrame((_, delta) => {
     if (phase.current === "idle") return;
+
+    // Disable OrbitControls during animation so it doesn't fight camera position
+    if (controlsRef.current) controlsRef.current.enabled = false;
 
     progress.current += delta;
 
@@ -212,6 +218,11 @@ function CameraAnimator({
       if (t >= 1) {
         phase.current = "idle";
         camera.position.z = 5;
+        // Reset OrbitControls so it syncs with the final camera position
+        if (controlsRef.current) {
+          controlsRef.current.reset();
+          controlsRef.current.enabled = true;
+        }
         onTravelComplete?.();
       }
     }
@@ -230,6 +241,7 @@ function CameraAnimator({
 
 export function EarthSphere({ visible, targetPlanet, onTravelComplete }: EarthSphereProps) {
   const [showingPlanet, setShowingPlanet] = useState<Planet | null>(null);
+  const controlsRef = useRef<OrbitControlsImpl>(null);
 
   if (!visible) return null;
 
@@ -244,8 +256,9 @@ export function EarthSphere({ visible, targetPlanet, onTravelComplete }: EarthSp
           targetPlanet={targetPlanet}
           onMidpoint={() => setShowingPlanet(targetPlanet ?? null)}
           onTravelComplete={onTravelComplete}
+          controlsRef={controlsRef}
         />
-        <OrbitControls enableZoom={false} enablePan={false} />
+        <OrbitControls ref={controlsRef} enableZoom={false} enablePan={false} />
       </Canvas>
     </div>
   );
