@@ -1,0 +1,154 @@
+.seeding-timeline {
+  width: 100%;
+  padding: 1rem 1.5rem;
+}
+
+/* ─── Track ─────────────────────────────────────────────────────── */
+.seeding-timeline__track {
+  position: relative;
+  height: 3rem;
+  margin: 0 1rem;
+}
+
+.seeding-timeline__rail {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-50%);
+  border-radius: 1px;
+}
+
+.seeding-timeline__progress {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #4ade80, #22d3ee);
+  transform: translateY(-50%);
+  border-radius: 1px;
+  box-shadow: 0 0 8px rgba(74, 222, 128, 0.4);
+  will-change: width;
+}
+
+/* ─── Nodes ─────────────────────────────────────────────────────── */
+.seeding-timeline__node {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  z-index: 2;
+  outline: none;
+}
+
+.seeding-timeline__node-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  transition: background 0.3s, border-color 0.3s, box-shadow 0.3s;
+}
+
+.seeding-timeline__node:hover .seeding-timeline__node-dot {
+  background: rgba(74, 222, 128, 0.3);
+  border-color: rgba(74, 222, 128, 0.6);
+}
+
+.seeding-timeline__node.past .seeding-timeline__node-dot {
+  background: rgba(74, 222, 128, 0.6);
+  border-color: #4ade80;
+}
+
+.seeding-timeline__node.active .seeding-timeline__node-dot {
+  background: #4ade80;
+  border-color: #4ade80;
+  box-shadow: 0 0 12px rgba(74, 222, 128, 0.6), 0 0 24px rgba(74, 222, 128, 0.2);
+}
+
+.seeding-timeline__node-label {
+  font-size: 0.625rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: rgba(255, 255, 255, 0.35);
+  white-space: nowrap;
+  transition: color 0.3s;
+}
+
+.seeding-timeline__node.active .seeding-timeline__node-label,
+.seeding-timeline__node:hover .seeding-timeline__node-label {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* ─── Detail panel ──────────────────────────────────────────────── */
+.seeding-timeline__detail {
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0.75rem;
+  backdrop-filter: blur(12px);
+}
+
+.seeding-timeline__detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.35rem;
+}
+
+.seeding-timeline__detail-stage {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #4ade80;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.seeding-timeline__detail-year {
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.4);
+  font-variant-numeric: tabular-nums;
+}
+
+.seeding-timeline__detail-text {
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+/* ─── Controls ──────────────────────────────────────────────────── */
+.seeding-timeline__controls {
+  display: flex;
+  justify-content: center;
+  margin-top: 0.75rem;
+}
+
+.seeding-timeline__play-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.seeding-timeline__play-btn:hover {
+  background: rgba(74, 222, 128, 0.15);
+  border-color: rgba(74, 222, 128, 0.4);
+  color: #4ade80;
+}

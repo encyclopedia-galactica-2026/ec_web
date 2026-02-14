@@ -7,6 +7,7 @@ import { Starfield } from "./starfield";
 import { EarthSphere } from "./earth-sphere";
 import { ExoplanetList } from "./exoplanet-list";
 import { SearchBar } from "./search-bar";
+import { SeedingPanel } from "@/components/seeding/seeding-panel";
 import { searchPlanets } from "@/lib/actions/planets";
 import type { Planet } from "@/lib/db/schema";
 
@@ -37,6 +38,7 @@ export function Hero({ initialPlanets, initialHasMore }: HeroProps) {
   const [traveling, setTraveling] = useState(false);
   const [starSpeed, setStarSpeed] = useState(2);
   const [planetLabel, setPlanetLabel] = useState<string | null>(null);
+  const [seedingPlanet, setSeedingPlanet] = useState<Planet | null>(null);
 
   const handleSearch = useCallback(
     (value: string) => {
@@ -216,12 +218,22 @@ export function Hero({ initialPlanets, initialHasMore }: HeroProps) {
               {planetLabel && !traveling && (
                 <div className="absolute bottom-4 left-1/2 -translate-x-1/2 rounded-lg border border-white/10 bg-white/5 px-4 py-2 backdrop-blur-sm">
                   <p className="text-center text-sm font-medium text-white">{planetLabel}</p>
-                  <button
-                    onClick={handleBackToEarth}
-                    className="mt-1 text-xs text-white/50 hover:text-white/80 transition-colors"
-                  >
-                    ← Back to Earth
-                  </button>
+                  <div className="mt-1 flex items-center justify-center gap-3">
+                    <button
+                      onClick={handleBackToEarth}
+                      className="text-xs text-white/50 hover:text-white/80 transition-colors"
+                    >
+                      ← Back to Earth
+                    </button>
+                    {targetPlanet && (
+                      <button
+                        onClick={() => setSeedingPlanet(targetPlanet)}
+                        className="rounded-md border border-emerald-500/30 bg-emerald-500/10 px-3 py-0.5 text-xs font-medium text-emerald-400 transition-colors hover:border-emerald-500/50 hover:bg-emerald-500/20"
+                      >
+                        Begin Seeding
+                      </button>
+                    )}
+                  </div>
                 </div>
               )}
             </div>
@@ -239,6 +251,13 @@ export function Hero({ initialPlanets, initialHasMore }: HeroProps) {
             </div>
           </div>
         </div>
+      )}
+
+      {seedingPlanet && (
+        <SeedingPanel
+          planet={seedingPlanet}
+          onClose={() => setSeedingPlanet(null)}
+        />
       )}
     </section>
   );

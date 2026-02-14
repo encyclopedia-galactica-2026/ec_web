@@ -19,19 +19,36 @@ export async function promptGroq<T>(
     systemPrompt: string,
     userPrompt: string,
     schema: z.ZodType<T>,
-    model = "llama-3.3-70b-versatile"
+    model = "openai/gpt-oss-20b"
 ): Promise<T> {
     const client = getClient();
 
-    const completion = await client.chat.completions.create({
-        messages: [
-            { role: "system", content: systemPrompt },
-            { role: "user", content: userPrompt + "\n\nIMPORTANT: Respond with valid JSON only tailored to the schema. Do not output markdown." },
-        ],
-        model: model,
-        response_format: { type: "json_object" },
-        temperature: 0.7,
-    });
+    let completion;
+    for (let attempt = 0; attempt < 3; attempt++) {
+        try {
+            completion = await client.chat.completions.create({
+                messages: [
+                    { role: "system", content: systemPrompt },
+                    { role: "user", content: userPrompt + "\n\nIMPORTANT: Respond with valid JSON only tailored to the schema. Do not output markdown." },
+                ],
+                model: model,
+                response_format: { type: "json_object" },
+                temperature: 0.7,
+            });
+            break;
+        } catch (error: any) {
+            if (error?.status === 429 && attempt < 2) {
+                console.log(`Rate limit hit (attempt ${attempt + 1}/3). Waiting 10s...`);
+                await new Promise((resolve) => setTimeout(resolve, 10000));
+                continue;
+            }
+            throw error;
+        }
+    }
+
+    if (!completion) {
+        throw new Error("Failed to get completion from Groq after retries");
+    }
 
     const content = completion.choices[0]?.message?.content;
     if (!content) {
