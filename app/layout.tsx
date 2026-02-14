@@ -23,7 +23,8 @@ const orbitron = Orbitron({
 
 export const metadata: Metadata = {
   title: "Encyclopedia Galactica",
-  description: "Explore the vast knowledge of the galaxy",
+  description:
+    "Terraform more than 4000+ exoplanets in an immersive 3D environment with the help of AI",
   icons: { icon: "/logo.svg" },
 };
 
