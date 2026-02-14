@@ -169,6 +169,7 @@ function RotatingSphere() {
 interface EarthSphereProps {
   visible: boolean;
   targetPlanet?: Planet | null;
+  displayPlanet?: Planet | null;
   onTravelComplete?: () => void;
 }
 
@@ -239,7 +240,7 @@ function CameraAnimator({
   return null;
 }
 
-export function EarthSphere({ visible, targetPlanet, onTravelComplete }: EarthSphereProps) {
+export function EarthSphere({ visible, targetPlanet, displayPlanet, onTravelComplete }: EarthSphereProps) {
   const [showingPlanet, setShowingPlanet] = useState<Planet | null>(null);
   const controlsRef = useRef<OrbitControlsImpl>(null);
 
@@ -251,7 +252,9 @@ export function EarthSphere({ visible, targetPlanet, onTravelComplete }: EarthSp
         <ambientLight intensity={0.16} />
         <directionalLight position={[5, 3, 5]} intensity={0.82} />
         {!showingPlanet && <RotatingSphere />}
-        {showingPlanet && <ExoplanetMesh planet={showingPlanet} />}
+        {showingPlanet && (
+          <ExoplanetMesh planet={showingPlanet} displayPlanet={displayPlanet} />
+        )}
         <CameraAnimator
           targetPlanet={targetPlanet}
           onMidpoint={() => setShowingPlanet(targetPlanet ?? null)}

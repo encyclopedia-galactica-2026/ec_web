@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import type { Mesh, ShaderMaterial } from "three";
@@ -225,10 +225,16 @@ function deriveUniforms(planet: Planet) {
   };
 }
 
-export function ExoplanetMesh({ planet }: { planet: Planet }) {
+interface ExoplanetMeshProps {
+  planet: Planet;
+  displayPlanet?: Planet | null;
+}
+
+export function ExoplanetMesh({ planet, displayPlanet }: ExoplanetMeshProps) {
   const planetRef = useRef<Mesh>(null);
   const atmosphereRef = useRef<Mesh>(null);
   const planetMaterialRef = useRef<ShaderMaterial>(null);
+  const atmosphereMaterialRef = useRef<ShaderMaterial>(null);
 
   const planetUniforms = useMemo(() => deriveUniforms(planet), [planet]);
 
@@ -239,6 +245,26 @@ export function ExoplanetMesh({ planet }: { planet: Planet }) {
     }),
     [planetUniforms],
   );
+
+  useEffect(() => {
+    if (!displayPlanet) return;
+    const u = deriveUniforms(displayPlanet);
+
+    if (planetMaterialRef.current) {
+      const mat = planetMaterialRef.current;
+      mat.uniforms.uTemp.value = u.uTemp.value;
+      mat.uniforms.uHabitability.value = u.uHabitability.value;
+      mat.uniforms.uAtmosphere.value = u.uAtmosphere.value;
+      mat.uniforms.uMassDensity.value = u.uMassDensity.value;
+      mat.uniforms.uFlux.value = u.uFlux.value;
+    }
+
+    if (atmosphereMaterialRef.current) {
+      atmosphereMaterialRef.current.uniforms.uTemp.value = u.uTemp.value;
+      atmosphereMaterialRef.current.uniforms.uAtmosphere.value =
+        u.uAtmosphere.value;
+    }
+  }, [displayPlanet]);
 
   useFrame((_, delta) => {
     if (planetRef.current) {
@@ -266,6 +292,7 @@ export function ExoplanetMesh({ planet }: { planet: Planet }) {
       <mesh ref={atmosphereRef}>
         <sphereGeometry args={[1.86, 128, 128]} />
         <shaderMaterial
+          ref={atmosphereMaterialRef}
           uniforms={atmosphereUniforms}
           vertexShader={atmosphereVertexShader}
           fragmentShader={atmosphereFragmentShader}
