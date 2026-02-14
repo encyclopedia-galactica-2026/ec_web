@@ -5,7 +5,7 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-    --font-sans: var(--font-sans);
+    --font-sans: var(--font-play);
     --font-serif: var(--font-instrument-serif);
     --font-mono: var(--font-mono);
     --color-background: var(--background);
@@ -121,9 +121,10 @@
 @layer base {
     * {
         @apply border-border outline-ring/50;
+        font-family: inherit;
     }
     body {
-        @apply bg-background text-foreground;
+        @apply bg-background text-foreground font-sans;
     }
 }
 

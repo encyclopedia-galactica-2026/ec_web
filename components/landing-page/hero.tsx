@@ -1,7 +1,15 @@
 "use client";
 
-import { useRef, useState, useCallback, useTransition, useEffect, useMemo } from "react";
+import {
+  useRef,
+  useState,
+  useCallback,
+  useTransition,
+  useEffect,
+  useMemo,
+} from "react";
 import { animate } from "animejs";
+import { Info, X } from "lucide-react";
 import { Button } from "../ui/button";
 import { Starfield } from "./starfield";
 import { EarthSphere } from "./earth-sphere";
@@ -11,7 +19,10 @@ import { TerraformPanel } from "../terraforming/terraform-panel";
 import { TimelineSlider } from "../terraforming/timeline-slider";
 import { PlanetDescription } from "../terraforming/planet-description";
 import { searchPlanets } from "@/lib/actions/planets";
-import { interpolatePlanet, combineAfterValues } from "@/lib/terraforming/interpolate";
+import {
+  interpolatePlanet,
+  combineAfterValues,
+} from "@/lib/terraforming/interpolate";
 import type { Planet } from "@/lib/db/schema";
 import type { TerraformState, SeedingStrategy } from "@/lib/terraforming/types";
 
@@ -33,7 +44,11 @@ function getHILabel(hi: number): string {
   return "Hostile";
 }
 
-function formatValue(val: number | null | undefined, decimals = 2, fallback = "N/A"): string {
+function formatValue(
+  val: number | null | undefined,
+  decimals = 2,
+  fallback = "N/A",
+): string {
   if (val == null) return fallback;
   return val.toFixed(decimals);
 }
@@ -54,7 +69,8 @@ function DeltaValue({
   const color = diff > 0 ? "text-emerald-400/70" : "text-red-400/70";
   return (
     <span className={`ml-1 text-[10px] ${color}`}>
-      ({sign}{diff.toFixed(decimals)})
+      ({sign}
+      {diff.toFixed(decimals)})
     </span>
   );
 }
@@ -86,7 +102,10 @@ export function Hero({ initialPlanets, initialHasMore }: HeroProps) {
   const [planetLabel, setPlanetLabel] = useState<string | null>(null);
   const planetInfoRef = useRef<HTMLDivElement>(null);
 
-  const [terraformState, setTerraformState] = useState<TerraformState>({ phase: "idle" });
+  const [terraformState, setTerraformState] = useState<TerraformState>({
+    phase: "idle",
+  });
+  const [showGlossary, setShowGlossary] = useState(false);
 
   const displayPlanet = useMemo(() => {
     if (!targetPlanet) return null;
@@ -124,19 +143,22 @@ export function Hero({ initialPlanets, initialHasMore }: HeroProps) {
     }
   }, [targetPlanet]);
 
-  const handleConfirmStrategies = useCallback((strategies: SeedingStrategy[]) => {
-    const totalYears = Math.max(...strategies.map((s) => s.estimatedYears));
-    const combined = combineAfterValues(strategies);
-    setTerraformState({
-      phase: "simulating",
-      selected: strategies,
-      totalYears,
-      combined,
-      year: 0,
-      playing: false,
-      speed: 1,
-    });
-  }, []);
+  const handleConfirmStrategies = useCallback(
+    (strategies: SeedingStrategy[]) => {
+      const totalYears = Math.max(...strategies.map((s) => s.estimatedYears));
+      const combined = combineAfterValues(strategies);
+      setTerraformState({
+        phase: "simulating",
+        selected: strategies,
+        totalYears,
+        combined,
+        year: 0,
+        playing: false,
+        speed: 1,
+      });
+    },
+    [],
+  );
 
   const handleYearChange = useCallback((year: number) => {
     setTerraformState((prev) => {
@@ -213,10 +235,17 @@ export function Hero({ initialPlanets, initialHasMore }: HeroProps) {
   );
 
   useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (e.key === "Enter" && !entered) {
+        handleEnter();
+      }
+    };
+    window.addEventListener("keydown", handleKeyPress);
     return () => {
+      window.removeEventListener("keydown", handleKeyPress);
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
-  }, []);
+  }, [entered]);
 
   const loadMore = useCallback(() => {
     if (!hasMore || isPending) return;
@@ -234,7 +263,11 @@ export function Hero({ initialPlanets, initialHasMore }: HeroProps) {
       if (traveling) return;
       setTraveling(true);
 
-      const elements = [leftListRef.current, rightListRef.current, searchBarRef.current].filter(Boolean) as HTMLElement[];
+      const elements = [
+        leftListRef.current,
+        rightListRef.current,
+        searchBarRef.current,
+      ].filter(Boolean) as HTMLElement[];
 
       let completed = 0;
       const total = elements.length;
@@ -242,7 +275,12 @@ export function Hero({ initialPlanets, initialHasMore }: HeroProps) {
       elements.forEach((el) => {
         animate(el, {
           opacity: [1, 0],
-          translateX: el === leftListRef.current ? [0, -80] : el === rightListRef.current ? [0, 80] : 0,
+          translateX:
+            el === leftListRef.current
+              ? [0, -80]
+              : el === rightListRef.current
+                ? [0, 80]
+                : 0,
           translateY: el === searchBarRef.current ? [0, -40] : 0,
           ease: "inExpo",
           duration: 500,
@@ -276,7 +314,11 @@ export function Hero({ initialPlanets, initialHasMore }: HeroProps) {
         }
       });
     } else {
-      const elements = [leftListRef.current, rightListRef.current, searchBarRef.current].filter(Boolean) as HTMLElement[];
+      const elements = [
+        leftListRef.current,
+        rightListRef.current,
+        searchBarRef.current,
+      ].filter(Boolean) as HTMLElement[];
       elements.forEach((el) => {
         animate(el, {
           opacity: [0, 1],
@@ -359,8 +401,12 @@ export function Hero({ initialPlanets, initialHasMore }: HeroProps) {
               <p className="mx-auto max-w-175 text-muted-foreground md:text-xl">
                 Don&apos;t just discover habitable worlds. Engineer them.
               </p>
-              <Button className="mt-8" variant="ghost" onClick={handleEnter}>
-                Enter
+              <Button
+                className="mt-8 gap-2"
+                variant="ghost"
+                onClick={handleEnter}
+              >
+                Enter <span>↵</span>
               </Button>
             </div>
           </div>
@@ -369,12 +415,22 @@ export function Hero({ initialPlanets, initialHasMore }: HeroProps) {
 
       {entered && (
         <div className="relative z-10 flex h-full w-full flex-col items-center px-4 pt-4">
-          <div ref={searchBarRef} style={{ pointerEvents: targetPlanet ? "none" : "auto" }}>
-            <SearchBar value={query} onChange={handleSearch} visible={explorerReady} />
+          <div
+            ref={searchBarRef}
+            style={{ pointerEvents: targetPlanet ? "none" : "auto" }}
+          >
+            <SearchBar
+              value={query}
+              onChange={handleSearch}
+              visible={explorerReady}
+            />
           </div>
 
           <div className="flex flex-1 items-center justify-between w-full">
-            <div ref={leftListRef} style={{ pointerEvents: targetPlanet ? "none" : "auto" }}>
+            <div
+              ref={leftListRef}
+              style={{ pointerEvents: targetPlanet ? "none" : "auto" }}
+            >
               <ExoplanetList
                 side="left"
                 planets={leftPlanets}
@@ -399,7 +455,10 @@ export function Hero({ initialPlanets, initialHasMore }: HeroProps) {
               />
             </div>
 
-            <div ref={rightListRef} style={{ pointerEvents: targetPlanet ? "none" : "auto" }}>
+            <div
+              ref={rightListRef}
+              style={{ pointerEvents: targetPlanet ? "none" : "auto" }}
+            >
               <ExoplanetList
                 side="right"
                 planets={rightPlanets}
@@ -423,62 +482,103 @@ export function Hero({ initialPlanets, initialHasMore }: HeroProps) {
             <div className="rounded-xl border border-white/10 bg-black/60 px-5 py-4 backdrop-blur-md">
               <p
                 className="text-5xl font-bold tabular-nums tracking-tight"
-                style={{ color: getHIColor(displayPlanet.hi ?? 0) }}
+                style={{
+                  color: getHIColor(displayPlanet.hi ?? 0),
+                  fontFamily: "var(--font-orbitron)",
+                }}
               >
                 {formatValue(displayPlanet.hi, 1)}
               </p>
               <p
                 className="text-sm font-semibold uppercase tracking-widest"
-                style={{ color: getHIColor(displayPlanet.hi ?? 0) }}
+                style={{
+                  color: getHIColor(displayPlanet.hi ?? 0),
+                  fontFamily: "var(--font-orbitron)",
+                }}
               >
                 {getHILabel(displayPlanet.hi ?? 0)}
               </p>
               <p className="mt-0.5 text-[10px] uppercase tracking-widest text-white/40">
                 Habitability Index
-                <DeltaValue original={targetPlanet.hi} current={displayPlanet.hi} />
+                <DeltaValue
+                  original={targetPlanet.hi}
+                  current={displayPlanet.hi}
+                />
               </p>
 
               <div className="mt-4 space-y-2 text-xs text-white/70">
-                <p className="text-sm font-medium text-white">{targetPlanet.plName}</p>
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-medium text-white">
+                    {targetPlanet.plName}
+                  </p>
+                  <button
+                    onClick={() => setShowGlossary(true)}
+                    className="rounded-full p-0.5 text-white/40 transition-colors hover:text-white/80"
+                    aria-label="Show metric definitions"
+                  >
+                    <Info className="size-3.5" />
+                  </button>
+                </div>
 
                 <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 pt-1">
                   <span className="text-white/40">Eq. Temp</span>
                   <span className="text-right">
                     {formatValue(displayPlanet.plEqt, 0)} K
-                    <DeltaValue original={targetPlanet.plEqt} current={displayPlanet.plEqt} decimals={0} />
+                    <DeltaValue
+                      original={targetPlanet.plEqt}
+                      current={displayPlanet.plEqt}
+                      decimals={0}
+                    />
                   </span>
 
                   <span className="text-white/40">Radius</span>
-                  <span className="text-right">{formatValue(targetPlanet.plRade)} R⊕</span>
+                  <span className="text-right">
+                    {formatValue(targetPlanet.plRade)} R⊕
+                  </span>
 
                   <span className="text-white/40">Mass</span>
-                  <span className="text-right">{formatValue(targetPlanet.plBmasse)} M⊕</span>
+                  <span className="text-right">
+                    {formatValue(targetPlanet.plBmasse)} M⊕
+                  </span>
 
                   <span className="text-white/40">Orbit</span>
-                  <span className="text-right">{formatValue(targetPlanet.plOrbsmax, 3)} AU</span>
+                  <span className="text-right">
+                    {formatValue(targetPlanet.plOrbsmax, 3)} AU
+                  </span>
 
                   <span className="text-white/40">Stellar Flux</span>
                   <span className="text-right">
                     {formatValue(displayPlanet.flux, 2)}
-                    <DeltaValue original={targetPlanet.flux} current={displayPlanet.flux} />
+                    <DeltaValue
+                      original={targetPlanet.flux}
+                      current={displayPlanet.flux}
+                    />
                   </span>
 
                   <span className="text-white/40">TRI</span>
                   <span className="text-right">
                     {formatValue(displayPlanet.tri, 1)}
-                    <DeltaValue original={targetPlanet.tri} current={displayPlanet.tri} />
+                    <DeltaValue
+                      original={targetPlanet.tri}
+                      current={displayPlanet.tri}
+                    />
                   </span>
 
                   <span className="text-white/40">Atmosphere</span>
                   <span className="text-right">
                     {formatValue(displayPlanet.atmosphereScore, 2)}
-                    <DeltaValue original={targetPlanet.atmosphereScore} current={displayPlanet.atmosphereScore} />
+                    <DeltaValue
+                      original={targetPlanet.atmosphereScore}
+                      current={displayPlanet.atmosphereScore}
+                    />
                   </span>
 
                   {displayPlanet.riskLevel && (
                     <>
                       <span className="text-white/40">Risk</span>
-                      <span className="text-right">{displayPlanet.riskLevel}</span>
+                      <span className="text-right">
+                        {displayPlanet.riskLevel}
+                      </span>
                     </>
                   )}
                 </div>
@@ -501,7 +601,8 @@ export function Hero({ initialPlanets, initialHasMore }: HeroProps) {
             onRetry={handleStartTerraform}
           />
 
-          {(terraformState.phase === "simulating" || terraformState.phase === "completed") && (
+          {(terraformState.phase === "simulating" ||
+            terraformState.phase === "completed") && (
             <TimelineSlider
               totalYears={terraformState.totalYears}
               year={
@@ -510,7 +611,9 @@ export function Hero({ initialPlanets, initialHasMore }: HeroProps) {
                   : terraformState.totalYears
               }
               playing={
-                terraformState.phase === "simulating" ? terraformState.playing : false
+                terraformState.phase === "simulating"
+                  ? terraformState.playing
+                  : false
               }
               speed={
                 terraformState.phase === "simulating" ? terraformState.speed : 1
@@ -521,14 +624,87 @@ export function Hero({ initialPlanets, initialHasMore }: HeroProps) {
             />
           )}
 
-          {terraformState.phase !== "simulating" && terraformState.phase !== "completed" && (
-            <div className="absolute bottom-6 left-1/2 z-20 -translate-x-1/2">
-              <button
-                onClick={handleBackToEarth}
-                className="rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-xs text-white/50 backdrop-blur-sm transition-colors hover:text-white/80"
-              >
-                ← Back to Earth
-              </button>
+          {terraformState.phase !== "simulating" &&
+            terraformState.phase !== "completed" && (
+              <div className="absolute bottom-6 left-1/2 z-20 -translate-x-1/2">
+                <button
+                  onClick={handleBackToEarth}
+                  className="rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-xs text-white/50 backdrop-blur-sm transition-colors hover:text-white/80"
+                >
+                  ← Back to Earth
+                </button>
+              </div>
+            )}
+
+          {showGlossary && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center">
+              <div
+                className="absolute inset-0 bg-black/60"
+                onClick={() => setShowGlossary(false)}
+              />
+              <div className="relative z-10 w-full max-w-sm rounded-xl border border-white/10 bg-black/90 px-6 py-5 backdrop-blur-xl">
+                <div className="mb-4 flex items-center justify-between">
+                  <h3
+                    className="text-sm font-semibold uppercase tracking-widest text-white"
+                    style={{ fontFamily: "var(--font-orbitron)" }}
+                  >
+                    Metric Glossary
+                  </h3>
+                  <button
+                    onClick={() => setShowGlossary(false)}
+                    className="rounded-full p-1 text-white/40 transition-colors hover:text-white/80"
+                  >
+                    <X className="size-4" />
+                  </button>
+                </div>
+                <dl className="space-y-3 text-xs">
+                  {[
+                    {
+                      term: "Habitability Index (HI)",
+                      desc: "A composite score (0–100) indicating how suitable a planet is for human habitation, based on temperature, atmosphere, flux, and other factors.",
+                    },
+                    {
+                      term: "Eq. Temp",
+                      desc: "Equilibrium Temperature — the theoretical surface temperature (in Kelvin) assuming the planet radiates as a blackbody. Earth's is ~255 K.",
+                    },
+                    {
+                      term: "Radius (R⊕)",
+                      desc: "The planet's radius measured in Earth radii. 1 R⊕ = 6,371 km.",
+                    },
+                    {
+                      term: "Mass (M⊕)",
+                      desc: "The planet's mass measured in Earth masses. 1 M⊕ = 5.97 × 10²⁴ kg.",
+                    },
+                    {
+                      term: "Orbit (AU)",
+                      desc: "Semi-major axis — the average distance from the planet to its host star, in Astronomical Units. 1 AU ≈ 150 million km.",
+                    },
+                    {
+                      term: "Stellar Flux",
+                      desc: "The amount of energy the planet receives from its star relative to what Earth receives from the Sun. A value of 1.0 equals Earth's insolation.",
+                    },
+                    {
+                      term: "TRI",
+                      desc: "Terraforming Readiness Index — a score estimating how feasible it is to terraform the planet, considering atmosphere, temperature gap, gravity, and stellar flux.",
+                    },
+                    {
+                      term: "Atmosphere",
+                      desc: "Atmosphere Score — a value representing atmospheric suitability for life, factoring in density, composition, and greenhouse potential.",
+                    },
+                    {
+                      term: "Risk",
+                      desc: "Risk Level — an overall hazard rating (e.g. Low, Moderate, High) accounting for stellar activity, tidal locking, radiation, and orbital stability.",
+                    },
+                  ].map(({ term, desc }) => (
+                    <div key={term}>
+                      <dt className="font-medium text-white/90">{term}</dt>
+                      <dd className="mt-0.5 leading-relaxed text-white/50">
+                        {desc}
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
+              </div>
             </div>
           )}
         </>
