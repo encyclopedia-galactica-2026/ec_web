@@ -1,4 +1,4 @@
-import { google } from "@ai-sdk/google";
+import { groq } from "@ai-sdk/groq";
 import { streamText } from "ai";
 import { terraformLog } from "@/lib/terraforming/logger";
 
@@ -90,14 +90,14 @@ export async function POST(req: Request) {
         ? buildTerraformedPrompt(planet, terraformedData, strategies ?? [])
         : buildCurrentPrompt(planet);
 
-    terraformLog.info("Sending describe prompt to Gemini", {
-      model: "gemini-3-flash-preview",
+    terraformLog.info("Sending describe prompt to Groq", {
+      model: "openai/gpt-oss-20b",
       mode,
       promptLength: prompt.length,
     });
 
     const result = streamText({
-      model: google("gemini-3-flash-preview"),
+      model: groq("openai/gpt-oss-20b"),
       prompt,
       onFinish: ({ usage }) => {
         terraformLog.info("Description stream finished", { mode, usage });

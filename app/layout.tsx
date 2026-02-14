@@ -22,6 +22,7 @@ const instrumentSerif = Instrument_Serif({
 export const metadata: Metadata = {
   title: "Encyclopedia Galactica",
   description: "Explore the vast knowledge of the galaxy",
+  icons: { icon: "/logo.svg" },
 };
 
 export default function RootLayout({

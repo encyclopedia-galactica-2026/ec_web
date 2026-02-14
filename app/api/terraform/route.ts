@@ -1,4 +1,4 @@
-import { google } from "@ai-sdk/google";
+import { groq } from "@ai-sdk/groq";
 import { generateText, Output } from "ai";
 import { z } from "zod";
 import { terraformLog } from "@/lib/terraforming/logger";
@@ -85,13 +85,13 @@ Rules for after values:
 
 Make the strategies range from aggressive/fast to conservative/slow.`;
 
-    terraformLog.info("Sending prompt to Gemini", {
-      model: "gemini-3-flash-preview",
+    terraformLog.info("Sending prompt to Groq", {
+      model: "openai/gpt-oss-20b",
       promptLength: prompt.length,
     });
-
+    
     const { output, usage } = await generateText({
-      model: google("gemini-3-flash-preview"),
+      model: groq("openai/gpt-oss-20b"),
       output: Output.object({ schema: strategySchema }),
       prompt,
     });
