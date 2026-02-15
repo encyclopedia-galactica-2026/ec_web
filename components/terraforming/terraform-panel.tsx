@@ -23,7 +23,10 @@ import type {
 import { CATEGORY_META } from "@/lib/terraforming/types";
 import type { Planet } from "@/lib/db/schema";
 
-const CATEGORY_ICONS: Record<StrategyCategory, React.ElementType> = {
+const CATEGORY_ICONS: Record<
+  StrategyCategory,
+  React.ComponentType<{ className?: string }>
+> = {
   Agritech: Sprout,
   "Atmospheric Engineering": Wind,
   Bioengineering: Dna,
