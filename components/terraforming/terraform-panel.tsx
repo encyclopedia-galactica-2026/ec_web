@@ -2,15 +2,57 @@
 
 import { useRef, useEffect, useState } from "react";
 import { animate } from "animejs";
-import { Rocket, Loader2, X, RotateCcw, Check } from "lucide-react";
-import type { TerraformPanelProps, SeedingStrategy } from "@/lib/terraforming/types";
+import {
+  Rocket,
+  Loader2,
+  X,
+  RotateCcw,
+  Check,
+  Sprout,
+  Wind,
+  Dna,
+  Flame,
+  Droplets,
+  Orbit,
+} from "lucide-react";
+import type {
+  TerraformPanelProps,
+  SeedingStrategy,
+  StrategyCategory,
+} from "@/lib/terraforming/types";
+import { CATEGORY_META } from "@/lib/terraforming/types";
 import type { Planet } from "@/lib/db/schema";
 
-function formatDelta(original: number | null | undefined, after: number): string {
+const CATEGORY_ICONS: Record<StrategyCategory, React.ElementType> = {
+  Agritech: Sprout,
+  "Atmospheric Engineering": Wind,
+  Bioengineering: Dna,
+  Geothermal: Flame,
+  Hydrological: Droplets,
+  "Orbital Infrastructure": Orbit,
+};
+
+function formatDelta(
+  original: number | null | undefined,
+  after: number,
+): string {
   const diff = after - (original ?? 0);
   if (diff === 0) return "—";
   const sign = diff > 0 ? "+" : "";
   return `${sign}${diff.toFixed(1)}`;
+}
+
+function CategoryChip({ category }: { category: StrategyCategory }) {
+  const meta = CATEGORY_META[category];
+  const Icon = CATEGORY_ICONS[category];
+  return (
+    <span
+      className={`mt-1.5 inline-flex w-fit items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium ${meta.bg} ${meta.color}`}
+    >
+      <Icon className="h-3 w-3" />
+      {category}
+    </span>
+  );
 }
 
 function StrategyCard({
@@ -35,8 +77,11 @@ function StrategyCard({
     >
       <div className="flex items-start justify-between gap-2">
         <p className="text-sm font-medium text-white">{strategy.name}</p>
-        {selected && <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-400" />}
+        {selected && (
+          <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-400" />
+        )}
       </div>
+      <CategoryChip category={strategy.category} />
       <p className="mt-1 text-[11px] leading-relaxed text-white/50">
         {strategy.description}
       </p>
@@ -187,7 +232,8 @@ export function TerraformPanel({
             onClick={() => onConfirm(selected)}
             className="mt-3 w-full rounded-lg bg-emerald-500/20 py-2 text-xs font-medium text-emerald-400 transition-colors hover:bg-emerald-500/30"
           >
-            Begin Terraforming ({selected.length} strateg{selected.length === 1 ? "y" : "ies"})
+            Begin Terraforming ({selected.length} strateg
+            {selected.length === 1 ? "y" : "ies"})
           </button>
         )}
       </div>
@@ -214,12 +260,23 @@ export function TerraformPanel({
           <RotateCcw className="h-3.5 w-3.5" />
         </button>
       </div>
-      <div className="mt-2 space-y-1.5">
+      <div className="mt-2 max-h-[50vh] space-y-2 overflow-y-auto pr-1">
         {activeStrategies.map((s) => (
-          <div key={s.name} className="flex items-center gap-2 text-[11px]">
-            <div className="h-1.5 w-1.5 rounded-full bg-emerald-400/60" />
-            <span className="text-white/70">{s.name}</span>
-            <span className="text-white/30">{s.estimatedYears.toLocaleString()} yrs</span>
+          <div
+            key={s.name}
+            className="rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-2.5"
+          >
+            <div className="flex items-center gap-2 text-[11px]">
+              <div className="h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-400/60" />
+              <span className="text-white/70">{s.name}</span>
+              <span className="text-white/30">
+                {s.estimatedYears.toLocaleString()} yrs
+              </span>
+            </div>
+            <CategoryChip category={s.category} />
+            <p className="mt-1 text-[11px] leading-relaxed text-white/50">
+              {s.description}
+            </p>
           </div>
         ))}
       </div>

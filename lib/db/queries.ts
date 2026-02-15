@@ -10,9 +10,10 @@ export async function getInitialPlanets() {
       .select()
       .from(habitability)
       .orderBy(desc(habitability.hi))
-      .limit(PAGE_SIZE);
+      .limit(PAGE_SIZE + 1);
 
-    return { planets: rows, hasMore: rows.length === PAGE_SIZE };
+    const hasMore = rows.length > PAGE_SIZE;
+    return { planets: rows.slice(0, PAGE_SIZE), hasMore };
   } catch (err) {
     console.error("DB query failed:", err);
     return { planets: [], hasMore: false };

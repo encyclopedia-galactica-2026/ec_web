@@ -2,11 +2,13 @@ import { groq } from "@ai-sdk/groq";
 import { generateText, Output } from "ai";
 import { z } from "zod";
 import { terraformLog } from "@/lib/terraforming/logger";
+import { STRATEGY_CATEGORIES } from "@/lib/terraforming/types";
 
 const strategySchema = z.object({
   strategies: z.array(
     z.object({
       name: z.string(),
+      category: z.enum(STRATEGY_CATEGORIES),
       description: z.string(),
       estimatedYears: z.number(),
       afterValues: z.object({
@@ -40,7 +42,7 @@ export async function POST(req: Request) {
 
     const prompt = `You are a planetary scientist specializing in terraforming exoplanets.
 
-Analyze this exoplanet and propose 3-4 distinct seeding/terraforming strategies.
+Analyze this exoplanet and propose 5-7 distinct seeding/terraforming strategies.
 
 Current planet data:
 - Name: ${planet.plName}
@@ -61,9 +63,11 @@ Current planet data:
 
 For each strategy, provide:
 1. A creative but scientifically plausible name
-2. A 2-3 sentence description of the approach
-3. Estimated time in years (realistic, ranging from 50 to 10000 years)
-4. The projected "after" values for all planet scores after terraforming completes
+2. A category from this list: ${STRATEGY_CATEGORIES.join(", ")}. Choose the one that best fits the strategy's primary approach. Ensure variety — try to use different categories across strategies.
+3. Always have an AgriTech category if possible
+4. A 2-3 sentence description of the approach
+5. Estimated time in years (realistic, ranging from 50 to 10000 years)
+6. The projected "after" values for all planet scores after terraforming completes
 
 Rules for strategy descriptions:
 - Use plain text only. No markdown, no bullet points, no bold/italic, no special formatting.
@@ -86,12 +90,12 @@ Rules for after values:
 Make the strategies range from aggressive/fast to conservative/slow.`;
 
     terraformLog.info("Sending prompt to Groq", {
-      model: "openai/gpt-oss-20b",
+      model: "moonshotai/kimi-k2-instruct",
       promptLength: prompt.length,
     });
-    
+
     const { output, usage } = await generateText({
-      model: groq("openai/gpt-oss-20b"),
+      model: groq("moonshotai/kimi-k2-instruct"),
       output: Output.object({ schema: strategySchema }),
       prompt,
     });

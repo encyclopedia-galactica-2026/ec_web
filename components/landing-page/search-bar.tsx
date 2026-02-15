@@ -12,7 +12,7 @@ interface SearchBarProps {
 export function SearchBar({ value, onChange, visible }: SearchBarProps) {
   return (
     <div
-      className={`mx-auto w-full max-w-md transition-opacity duration-500 ${visible ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+      className={`w-full transition-opacity duration-500 ${visible ? "opacity-100" : "opacity-0 pointer-events-none"}`}
     >
       <div className="relative">
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" />

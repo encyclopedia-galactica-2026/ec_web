@@ -15,6 +15,8 @@ import { Starfield } from "./starfield";
 import { EarthSphere } from "./earth-sphere";
 import { ExoplanetList } from "./exoplanet-list";
 import { SearchBar } from "./search-bar";
+import { FilterToggle, PlanetFiltersPanel } from "./planet-filters";
+import type { PlanetFilters } from "./planet-filters";
 import { TerraformPanel } from "../terraforming/terraform-panel";
 import { TimelineSlider } from "../terraforming/timeline-slider";
 import { PlanetDescription } from "../terraforming/planet-description";
@@ -90,6 +92,8 @@ export function Hero({ initialPlanets, initialHasMore }: HeroProps) {
   const [explorerReady, setExplorerReady] = useState(false);
 
   const [query, setQuery] = useState("");
+  const [filters, setFilters] = useState<PlanetFilters>({});
+  const [filtersExpanded, setFiltersExpanded] = useState(false);
   const [planets, setPlanets] = useState<Planet[]>(initialPlanets);
   const [hasMore, setHasMore] = useState(initialHasMore);
   const [offset, setOffset] = useState(PAGE_SIZE);
@@ -224,14 +228,32 @@ export function Hero({ initialPlanets, initialHasMore }: HeroProps) {
 
       debounceRef.current = setTimeout(() => {
         startTransition(async () => {
-          const result = await searchPlanets(value, 0);
+          const result = await searchPlanets(value, 0, filters);
           setPlanets(result.planets);
           setHasMore(result.hasMore);
           setOffset(PAGE_SIZE);
         });
       }, 300);
     },
-    [startTransition],
+    [startTransition, filters],
+  );
+
+  const handleFiltersChange = useCallback(
+    (newFilters: PlanetFilters) => {
+      setFilters(newFilters);
+
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+
+      debounceRef.current = setTimeout(() => {
+        startTransition(async () => {
+          const result = await searchPlanets(query, 0, newFilters);
+          setPlanets(result.planets);
+          setHasMore(result.hasMore);
+          setOffset(PAGE_SIZE);
+        });
+      }, 300);
+    },
+    [startTransition, query],
   );
 
   useEffect(() => {
@@ -251,12 +273,12 @@ export function Hero({ initialPlanets, initialHasMore }: HeroProps) {
     if (!hasMore || isPending) return;
 
     startTransition(async () => {
-      const result = await searchPlanets(query, offset);
+      const result = await searchPlanets(query, offset, filters);
       setPlanets((prev) => [...prev, ...result.planets]);
       setHasMore(result.hasMore);
       setOffset((prev) => prev + PAGE_SIZE);
     });
-  }, [hasMore, isPending, query, offset, startTransition]);
+  }, [hasMore, isPending, query, offset, filters, startTransition]);
 
   const handlePlanetClick = useCallback(
     (planet: Planet) => {
@@ -417,13 +439,35 @@ export function Hero({ initialPlanets, initialHasMore }: HeroProps) {
         <div className="relative z-10 flex h-full w-full flex-col items-center px-4 pt-4">
           <div
             ref={searchBarRef}
+            className="mx-auto w-full max-w-2xl"
             style={{ pointerEvents: targetPlanet ? "none" : "auto" }}
           >
-            <SearchBar
-              value={query}
-              onChange={handleSearch}
-              visible={explorerReady}
-            />
+            <div className="flex items-center gap-2">
+              <SearchBar
+                value={query}
+                onChange={handleSearch}
+                visible={explorerReady}
+              />
+              <div
+                className={`transition-opacity duration-500 ${explorerReady ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+              >
+                <FilterToggle
+                  filters={filters}
+                  expanded={filtersExpanded}
+                  onToggle={() => setFiltersExpanded((v) => !v)}
+                />
+              </div>
+            </div>
+            {filtersExpanded && (
+              <div
+                className={`mt-2 transition-opacity duration-500 ${explorerReady ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+              >
+                <PlanetFiltersPanel
+                  filters={filters}
+                  onChange={handleFiltersChange}
+                />
+              </div>
+            )}
           </div>
 
           <div className="flex flex-1 items-center justify-between w-full">

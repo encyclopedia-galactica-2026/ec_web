@@ -40,7 +40,10 @@ function buildTerraformedPrompt(
   strategies: StrategyInfo[],
 ): string {
   const strategyBlock = strategies
-    .map((s) => `- ${s.name} (${s.estimatedYears.toLocaleString()} years): ${s.description}`)
+    .map(
+      (s) =>
+        `- ${s.name} (${s.estimatedYears.toLocaleString()} years): ${s.description}`,
+    )
     .join("\n");
 
   return `You are a planetary scientist writing a brief profile for an interstellar encyclopedia.
@@ -91,13 +94,13 @@ export async function POST(req: Request) {
         : buildCurrentPrompt(planet);
 
     terraformLog.info("Sending describe prompt to Groq", {
-      model: "openai/gpt-oss-20b",
+      model: "moonshotai/kimi-k2-instruct",
       mode,
       promptLength: prompt.length,
     });
 
     const result = streamText({
-      model: groq("openai/gpt-oss-20b"),
+      model: groq("moonshotai/kimi-k2-instruct"),
       prompt,
       onFinish: ({ usage }) => {
         terraformLog.info("Description stream finished", { mode, usage });

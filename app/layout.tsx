@@ -22,6 +22,9 @@ const orbitron = Orbitron({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL ?? "https://encyclopediagalactica.com"
+  ),
   title: "Encyclopedia Galactica",
   description:
     "Terraform more than 4000+ exoplanets in an immersive 3D environment with the help of AI",
